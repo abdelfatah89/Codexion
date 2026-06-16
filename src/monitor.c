@@ -1,25 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                       :::      ::::::::    */
-/*   main.c                                            :+:      :+:    :+:    */
+/*   monitor.c                                         :+:      :+:    :+:    */
 /*                                                   +:+ +:+         +:+      */
 /*   By: alaktaou <alaktaou@student.1337.ma>       #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/14 11:03:05 by alaktaou         #+#    #+#              */
-/*   Updated: 2026/06/14 11:03:05 by alaktaou        ###   ########.fr        */
+/*   Created: 2026/06/15 11:30:48 by alaktaou         #+#    #+#              */
+/*   Updated: 2026/06/15 11:30:48 by alaktaou        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
 
-int	main(int ac, char **av)
+void	monitor_routine(void)
 {
-	t_config		*config;
-	t_simulator		*simulator;
-	t_logger_args	*args;
-
-	simulator = init(ac, av);
-	if (!simulator)
-		return (-1);
-	clear(simulator);
+	int	i;
 }

@@ -1,25 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                       :::      ::::::::    */
-/*   main.c                                            :+:      :+:    :+:    */
+/*   timer.c                                           :+:      :+:    :+:    */
 /*                                                   +:+ +:+         +:+      */
 /*   By: alaktaou <alaktaou@student.1337.ma>       #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/14 11:03:05 by alaktaou         #+#    #+#              */
-/*   Updated: 2026/06/14 11:03:05 by alaktaou        ###   ########.fr        */
+/*   Created: 2026/06/16 08:40:30 by alaktaou         #+#    #+#              */
+/*   Updated: 2026/06/16 08:40:30 by alaktaou        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
 
-int	main(int ac, char **av)
+long	get_time_in_ms(void)
 {
-	t_config		*config;
-	t_simulator		*simulator;
-	t_logger_args	*args;
+	struct timeval	tv;
 
-	simulator = init(ac, av);
-	if (!simulator)
-		return (-1);
-	clear(simulator);
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000L + tv.tv_usec / 1000L);
+}
+
+void	cooldown_timer(long duration)
+{
+	long	start;
+
+	start = get_time_in_ms;
+	while (get_time_in_ms() - start < duration)
+	{
+		pthread_cond_wait();
+	}
 }
