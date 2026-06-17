@@ -17,6 +17,7 @@ t_coder	*init_coders(int coder_count, t_simulator *sim)
 	int		i;
 	t_coder	*coders;
 
+	i = 0;
 	coders = malloc(sizeof(*coders) * coder_count);
 	if (!coders)
 		return (NULL);
@@ -43,14 +44,13 @@ void	init_coder(int id, t_coder *coder, t_simulator *sim)
 t_dongle	*get_dongle(t_coder *coder, char *side)
 {
 	int	s;
+	int	count;
 
+	count = coder->table->config->coder_count;
+	s = 0;
 	if (strcmp(side, "right") == 0)
-		s = -1;
+		s = coder->id % count;
 	else if (strcmp(side, "left") == 0)
-		s = 1;
-	if (coder->id == 1 && s < 0)
-		s = coder->table->config->coder_count - 1;
-	else
-		side = coder->id + side;
+		s = coder->id - 1;
 	return (&coder->table->dongles[s]);
 }

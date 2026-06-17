@@ -27,8 +27,9 @@ void		assing_values(t_config *args, int *arr_int, char *schedular_type);
 // Init
 t_simulator	*init(int ac, char **av);
 t_config	*init_config(int ac, char **av);
-t_simulator	*init_simulitor(t_config *config);
+t_simulator	*init_simulator(t_config *config);
 void		init_threads(t_simulator *sim);
+void		init_mutex_cond(t_simulator *sim);
 
 // Dongle
 t_dongle	*init_dongles(int dongle_count);

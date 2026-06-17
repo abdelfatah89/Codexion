@@ -31,33 +31,18 @@ t_dongle	*init_dongles(int dongle_count)
 
 void	init_dongle(int id, t_dongle *dongle)
 {
-	pthread_mutex_t	*mutex;
-	pthread_cond_t	*cond;
-	t_heap			*queue;
-	t_request		*requests;
-
-	pthread_cond_init(&cond, NULL);
-	pthread_mutex_init(&mutex, NULL);
-	queue = malloc(sizeof(t_heap));
-	if (!queue)
-		return (NULL);
-	requests = malloc(sizeof(*requests) * 3);
-	if (!requests)
-		return (NULL);
+	pthread_cond_init(&dongle->cond, NULL);
+	pthread_mutex_init(&dongle->mutex, NULL);
 	dongle->id = id + 1;
-	dongle->mutex = mutex;
-	dongle->cond = cond;
 	dongle->cooldown_until = 0;
 	dongle->taken = false;
-	dongle->queue = &queue;
-	queue->requests = &requests;
-	queue->size = 0;
+	dongle->queue.size = 0;
 }
 
 void	take_dongle(t_dongle *dongle)
 {
-	pthread_mutex_t	*mutex;
-	pthread_cond_t	*cond;
+	pthread_mutex_t	mutex;
+	pthread_cond_t	cond;
 
 	mutex = dongle->mutex;
 	cond = dongle->cond;
@@ -72,7 +57,7 @@ void	take_dongle(t_dongle *dongle)
 
 void	release_dongle(t_coder *coder, char *side)
 {
-	pthread_mutex_t	*mutex;
+	pthread_mutex_t	mutex;
 	t_dongle		*dongle;
 	long			cooldown;
 
@@ -84,6 +69,6 @@ void	release_dongle(t_coder *coder, char *side)
 	mutex = dongle->mutex;
 	pthread_mutex_lock(&mutex);
 	dongle->taken = false;
-	dongle->cooldown_until = cooldown;
+	dongle->cooldown_until = get_time_in_ms() + cooldown;
 	pthread_mutex_unlock(&mutex);
 }

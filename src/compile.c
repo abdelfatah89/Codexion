@@ -17,6 +17,9 @@ void	compile(t_coder *coder)
 	t_logger_args	*args;
 	long			compile_time;
 
+	args = malloc(sizeof(t_logger_args));
+	if (!args)
+		return (NULL);
 	send_request(&coder, "left");
 	send_request(&coder, "right");
 	while (!coder->left || !coder->right)
@@ -42,7 +45,7 @@ void	send_request(t_coder *coder, char *side)
 	t_dongle		*dongle;
 	long			burnout;
 
-	dongle = get_dongle(&coder, side);
+	dongle = get_dongle(coder, side);
 	pthread_mutex_lock(&dongle->mutex);
 	burnout = coder->table->config->burnout_time;
 	request->coder = &coder;

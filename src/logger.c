@@ -26,6 +26,7 @@ void	logger(t_logger_args *args)
 	pthread_mutex_lock(mutex);
 	print_logs(&state, coder_id, timestamp);
 	pthread_mutex_unlock(mutex);
+	free(args);
 }
 
 void	print_logs(char *state, int cid, int t)

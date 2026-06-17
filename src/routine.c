@@ -12,16 +12,16 @@
 
 #include "../include/codexion.h"
 
-void	coder_routine(t_coder *coder)
+void	*coder_routine(t_coder *coder)
 {
 	bool	stop;
 
 	stop = coder->table->stop;
 	while (!stop)
 	{
-		compile(&coder);
-		debug(&coder);
-		refactor(&coder);
+		compile(coder);
+		debug(coder);
+		refactor(coder);
 	}
 }
 

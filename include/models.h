@@ -13,6 +13,11 @@
 #ifndef MODELS_H
 # define MODELS_H
 
+typedef struct s_coder		t_coder;
+typedef struct s_dongle		t_dongle;
+typedef struct s_simulator	t_simulator;
+typedef struct s_heap		t_heap;
+
 typedef struct s_config
 {
 	int		coder_count;
@@ -27,7 +32,7 @@ typedef struct s_config
 
 typedef struct s_logger_args
 {
-	pthread_mutex_t	*mutex;
+	pthread_mutex_t	mutex;
 	int				timestamp;
 	int				coder_id;
 	char			*state;
@@ -38,25 +43,22 @@ typedef struct s_simulator
 	t_config		*config;
 	long			start_time;
 	bool			stop;
-	pthread_mutex_t	*stop_mutex;
-	pthread_mutex_t	*logger_mutex;
+	pthread_mutex_t	stop_mutex;
+	pthread_mutex_t	logger_mutex;
 	pthread_t		monitor;
 	t_coder			*coders;
 	t_dongle		*dongles;
 }	t_simulator;
 
-typedef struct s_request
+typedef struct s_dongle
 {
-	t_coder	*coder;
-	long	order;
-	long	deadline;
-}	t_request;
-
-typedef struct s_heap
-{
-	t_request	*requests;
-	int			size;
-}	t_heap;
+	int				id;
+	pthread_mutex_t	mutex;
+	pthread_cond_t	cond;
+	long			cooldown_until;
+	bool			taken;
+	t_heap			queue;
+}	t_dongle;
 
 typedef struct s_coder
 {
@@ -69,14 +71,17 @@ typedef struct s_coder
 	t_simulator	*table;
 }	t_coder;
 
-typedef struct s_dongle
+typedef struct s_request
 {
-	int				id;
-	pthread_mutex_t	*mutex;
-	pthread_cond_t	*cond;
-	long			cooldown_until;
-	bool			taken;
-	t_heap			*queue;
-}	t_dongle;
+	t_coder	*coder;
+	long	order;
+	long	deadline;
+}	t_request;
+
+typedef struct s_heap
+{
+	t_request	requests[2];
+	int			size;
+}	t_heap;
 
 #endif
