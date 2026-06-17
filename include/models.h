@@ -38,7 +38,7 @@ typedef struct s_simulator
 	t_config		*config;
 	long			start_time;
 	bool			stop;
-	pthread_mutex_t	stop_mutex;
+	pthread_mutex_t	*stop_mutex;
 	pthread_mutex_t	*logger_mutex;
 	pthread_t		monitor;
 	t_coder			*coders;
@@ -54,9 +54,8 @@ typedef struct s_request
 
 typedef struct s_heap
 {
-	t_request	**data;
+	t_request	*requests;
 	int			size;
-	int			capacity;
 }	t_heap;
 
 typedef struct s_coder
@@ -68,13 +67,11 @@ typedef struct s_coder
 	long		last_compile_start;
 	int			compile_count;
 	t_simulator	*table;
-	long		request_order;
 }	t_coder;
 
 typedef struct s_dongle
 {
 	int				id;
-	t_coder			*owner;
 	pthread_mutex_t	*mutex;
 	pthread_cond_t	*cond;
 	long			cooldown_until;

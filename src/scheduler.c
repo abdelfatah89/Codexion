@@ -1,34 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                       :::      ::::::::    */
-/*   monitor.c                                         :+:      :+:    :+:    */
+/*   scheduler.c                                       :+:      :+:    :+:    */
 /*                                                   +:+ +:+         +:+      */
 /*   By: alaktaou <alaktaou@student.1337.ma>       #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/15 11:30:48 by alaktaou         #+#    #+#              */
-/*   Updated: 2026/06/15 11:30:48 by alaktaou        ###   ########.fr        */
+/*   Created: 2026/06/17 08:54:07 by alaktaou         #+#    #+#              */
+/*   Updated: 2026/06/17 08:54:07 by alaktaou        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
 
-pthread_t	*init_monitor(void)
+void	scheduler(t_dongle *dongle, t_request *request, char *type)
 {
-	pthread_t	*monitor;
-
-	return (monitor);
-}
-
-void	monitor_routine(void)
-{
-}
-
-void	stop_simulation(t_simulator *sim)
-{
-	pthread_mutex_t	*mutex;
-
-	mutex = &sim->stop_mutex;
-	pthread_mutex_lock(&mutex);
-	sim->stop = true;
-	pthread_mutex_unlock(&mutex);
+	if (strcmp(type, "fifo") == 0)
+	{
+	}
 }

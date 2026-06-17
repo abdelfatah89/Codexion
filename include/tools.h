@@ -48,7 +48,7 @@ void		clear_coders(t_coder *coders);
 void		clear_config(t_config *config);
 
 // Coder Routine
-void		coder_routine(bool simulation_runing, t_coder *coder);
+void		coder_routine(t_coder *coder);
 void		compile(t_coder *coder);
 void		debug(t_coder *coder);
 void		refactor(t_coder *coder);

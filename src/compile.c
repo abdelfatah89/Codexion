@@ -16,48 +16,38 @@ void	compile(t_coder *coder)
 {
 	t_logger_args	*args;
 	long			compile_time;
-	long			cooldown;
 
-	dongles_checker(&coder);
-	cooldown = coder->table->config->cooldown;
+	send_request(&coder, "left");
+	send_request(&coder, "right");
+	while (!coder->left || !coder->right)
+	{
+		if (!coder->left)
+			pthread_cond_wait(&coder->left->cond, NULL);
+		else
+			pthread_cond_wait(&coder->right->cond, NULL);
+	}
 	compile_time = coder->table->config->compile_time;
 	args->mutex = coder->table->logger_mutex;
 	args->state = "C";
 	args->coder_id = coder->id;
-	coder->last_compile_start = get_time_in_ms();
+	args->timestamp = get_time_in_ms() - coder->table->start_time;
+	coder->last_compile_start = get_time_in_ms() - coder->table->start_time;
 	logger(args);
 	timer(compile_time);
-	release_dongle(&coder->left, cooldown);
-	release_dongle(&coder->right, cooldown);
 }
 
-int	dongles_checker(t_coder *coder)
-{
-	if (coder->left && coder->right)
-		return (1);
-	else if (!coder->left && coder->right)
-		return (send_request(&coder, "left"), 0);
-	else if (coder->left && !coder->right)
-		return (send_request(&coder, "right"), 0);
-	else
-	{
-		send_request(&coder, "right");
-		send_request(&coder, "left");
-		return (0);
-	}
-}
-
-int	send_request(t_coder *coder, char *side)
+void	send_request(t_coder *coder, char *side)
 {
 	t_request		*request;
 	t_dongle		*dongle;
-	t_logger_args	*args;
+	long			burnout;
 
-	request->coder = &coder;
-	args->mutex = coder->table->logger_mutex;
-	args->state = "TD";
-	args->coder_id = coder->id;
 	dongle = get_dongle(&coder, side);
-	take_dongle(&dongle);
-	logger(args);
+	pthread_mutex_lock(&dongle->mutex);
+	burnout = coder->table->config->burnout_time;
+	request->coder = &coder;
+	request->deadline = coder->last_compile_start + burnout;
+	request->order = dongle->queue->size + 1;
+	dongle->queue->requests[dongle->queue->size] = *request;
+	pthread_mutex_unlock(&dongle->mutex);
 }

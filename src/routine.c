@@ -12,8 +12,11 @@
 
 #include "../include/codexion.h"
 
-void	coder_routine(bool stop, t_coder *coder)
+void	coder_routine(t_coder *coder)
 {
+	bool	stop;
+
+	stop = coder->table->stop;
 	while (!stop)
 	{
 		compile(&coder);
@@ -31,6 +34,7 @@ void	debug(t_coder *coder)
 	args->mutex = coder->table->logger_mutex;
 	args->state = "D";
 	args->coder_id = coder->id;
+	args->timestamp = get_time_in_ms() - coder->table->start_time;
 	logger(args);
 	timer(time);
 }
@@ -44,6 +48,7 @@ void	refactor(t_coder *coder)
 	args->mutex = coder->table->logger_mutex;
 	args->state = "R";
 	args->coder_id = coder->id;
+	args->timestamp = get_time_in_ms() - coder->table->start_time;
 	logger(args);
 	timer(time);
 }

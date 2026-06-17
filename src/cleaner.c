@@ -14,11 +14,17 @@
 
 void	clear(t_simulator *sim)
 {
-	clear_coders(sim->coders);
-	clear_dongles(sim->dongles);
 	clear_config(&sim->config);
+	clear_dongles(&sim->dongles);
+	clear_coders(&sim->coders);
+	clear_simulator(&sim);
+}
+
+void	clear_simulator(t_simulator *sim)
+{
 	pthread_mutex_destroy(&sim->stop_mutex);
 	pthread_mutex_destroy(&sim->logger_mutex);
+	free(sim);
 }
 
 void	clear_dongles(t_dongle *dongles)
@@ -32,6 +38,7 @@ void	clear_dongles(t_dongle *dongles)
 	{
 		pthread_mutex_destroy(dongles[i].mutex);
 		pthread_cond_destroy(dongles[i].cond);
+		free(dongles[i].queue->requests);
 		free(dongles[i].queue);
 		i++;
 	}
@@ -40,7 +47,7 @@ void	clear_dongles(t_dongle *dongles)
 
 void	clear_coders(t_coder *coders)
 {
-	free(&coders);
+	free(coders);
 }
 
 void	clear_config(t_config *config)

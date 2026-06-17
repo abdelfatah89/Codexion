@@ -23,7 +23,8 @@ t_simulator	*init(int ac, char **av)
 	sim = init_simulator(&config);
 	if (!sim)
 		return (NULL);
-	init_threads(sim);
+	init_mutex_cond(&sim);
+	init_threads(&sim);
 	return (sim);
 }
 
@@ -31,16 +32,18 @@ t_simulator	*init_simulitor(t_config *config)
 {
 	t_simulator		*sim;
 	pthread_mutex_t	*logger_mutex;
+	pthread_mutex_t	*stop_mutex;
+	pthread_t		monitor;
 
 	sim = malloc(sizeof(t_simulator));
 	if (!sim)
 		return (NULL);
 	sim->config = config;
 	sim->start_time = get_time_in_ms();
-	sim->stop;
-	sim->stop_mutex;
+	sim->stop = false;
+	sim->stop_mutex = &stop_mutex;
 	sim->logger_mutex = &logger_mutex;
-	sim->monitor;
+	sim->monitor = monitor;
 	sim->coders = init_coders(config->coder_count, &sim);
 	sim->dongles = init_dongles(config->coder_count);
 	return (sim);
@@ -76,7 +79,16 @@ void	init_threads(t_simulator *sim)
 	}
 }
 
-void	init_monitor(void)
+void	init_mutex_cond(t_simulator *sim)
 {
-	pthread_t	thread;
+	int	i;
+
+	i = 0;
+	pthread_mutex_init(&sim->logger_mutex, NULL);
+	pthread_mutex_init(&sim->stop_mutex, NULL);
+	while (i < sim->config->coder_count)
+	{
+		pthread_mutex_init(&sim->dongles[i].mutex, NULL);
+		pthread_cond_init(&sim->dongles[i].cond, NULL);
+	}
 }
