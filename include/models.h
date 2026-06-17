@@ -13,6 +13,16 @@
 #ifndef MODELS_H
 # define MODELS_H
 
+typedef struct s_coder		t_coder;
+typedef struct s_dongle		t_dongle;
+typedef struct s_simulator	t_simulator;
+
+typedef enum e_policy
+{
+	POLICY_FIFO,
+	POLICY_EDF
+}	t_policy;
+
 typedef struct s_config
 {
 	int		coder_count;
@@ -56,6 +66,8 @@ typedef struct s_heap
 {
 	t_request	*requests;
 	int			size;
+	int			capacity;
+	t_policy	policy;
 }	t_heap;
 
 typedef struct s_coder

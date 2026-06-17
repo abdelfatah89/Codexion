@@ -19,6 +19,18 @@
 void		logger(t_logger_args *args);
 void		print_logs(char *state, int cid, int t);
 
+// Heap (priority queue)
+void		heap_init(t_heap *heap, t_request *buffer, int capacity,
+				t_policy policy);
+int			heap_size(t_heap *heap);
+void		heap_push(t_heap *heap, t_request request);
+t_request	heap_peek(t_heap *heap);
+t_request	heap_pop(t_heap *heap);
+void		sift_up(t_heap *heap, int i);
+void		sift_down(t_heap *heap, int i);
+int			compare_requests(t_request a, t_request b, t_policy policy);
+void		swap_requests(t_request *a, t_request *b);
+
 // Parser Function.
 t_config	*parser(int argc, char **argv);
 int			checker(int *arr_int, char *schedular_type);
