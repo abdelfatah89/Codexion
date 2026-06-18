@@ -32,7 +32,9 @@ void	heap_push(t_heap *heap, t_request request)
 		return ;
 	heap->requests[heap->size] = request;
 	heap->size++;
-	sift_up(heap, heap->size - 1);
+	if (heap->size == 2 && compare_requests(heap->requests[1],
+			heap->requests[0], heap->policy))
+		swap_requests(&heap->requests[0], &heap->requests[1]);
 }
 
 t_request	heap_peek(t_heap *heap)
@@ -47,6 +49,5 @@ t_request	heap_pop(t_heap *heap)
 	top = heap->requests[0];
 	heap->size--;
 	heap->requests[0] = heap->requests[heap->size];
-	sift_down(heap, 0);
 	return (top);
 }

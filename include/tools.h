@@ -26,8 +26,6 @@ int			heap_size(t_heap *heap);
 void		heap_push(t_heap *heap, t_request request);
 t_request	heap_peek(t_heap *heap);
 t_request	heap_pop(t_heap *heap);
-void		sift_up(t_heap *heap, int i);
-void		sift_down(t_heap *heap, int i);
 int			compare_requests(t_request a, t_request b, t_policy policy);
 void		swap_requests(t_request *a, t_request *b);
 
