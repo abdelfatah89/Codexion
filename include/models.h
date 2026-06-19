@@ -53,10 +53,11 @@ typedef struct s_heap
 
 typedef struct s_logger_args
 {
-	pthread_mutex_t	*mutex;
+	t_simulator		*sim;
 	int				timestamp;
 	int				coder_id;
 	char			*state;
+	bool			fatal;
 }	t_logger_args;
 
 typedef struct s_simulator
@@ -78,19 +79,21 @@ typedef struct s_dongle
 	pthread_mutex_t	mutex;
 	pthread_cond_t	cond;
 	long			cooldown_until;
+	long			next_order;
 	bool			taken;
 	t_heap			queue;
 }	t_dongle;
 
 typedef struct s_coder
 {
-	int			id;
-	pthread_t	thread;
-	t_dongle	*left;
-	t_dongle	*right;
-	long		last_compile_start;
-	int			compile_count;
-	t_simulator	*table;
+	int				id;
+	pthread_t		thread;
+	t_dongle		*left;
+	t_dongle		*right;
+	long			last_compile_start;
+	int				compile_count;
+	pthread_mutex_t	mutex;
+	t_simulator		*table;
 }	t_coder;
 
 #endif

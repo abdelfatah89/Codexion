@@ -20,11 +20,25 @@ long	get_time_in_ms(void)
 	return (tv.tv_sec * 1000L + tv.tv_usec / 1000L);
 }
 
-struct timespec	ms_to_timespec(long total_ms)
+struct timespec	abstime_after_ms(long ms)
 {
+	struct timeval	tv;
 	struct timespec	ts;
+	long			nsec;
 
-	ts.tv_sec = total_ms / 1000;
-	ts.tv_nsec = (total_ms % 1000) * 1000000;
+	gettimeofday(&tv, NULL);
+	ts.tv_sec = tv.tv_sec + ms / 1000;
+	nsec = (long)tv.tv_usec * 1000L + (ms % 1000) * 1000000L;
+	ts.tv_sec += nsec / 1000000000L;
+	ts.tv_nsec = nsec % 1000000000L;
 	return (ts);
+}
+
+void	precise_sleep(t_simulator *sim, long ms)
+{
+	long	start;
+
+	start = get_time_in_ms();
+	while (!is_stopped(sim) && get_time_in_ms() - start < ms)
+		usleep(200);
 }
