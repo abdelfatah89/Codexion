@@ -17,17 +17,14 @@ void	*coder_routine(void *arg)
 	t_coder	*coder;
 
 	coder = (t_coder *)arg;
-	while (1)
+	while (!is_stopped(coder->table))
 	{
-		pthread_mutex_lock(&coder->table->stop_mutex);
-		if (coder->table->stop)
-		{
-			pthread_mutex_unlock(&coder->table->stop_mutex);
-			break ;
-		}
-		pthread_mutex_unlock(&coder->table->stop_mutex);
 		compile(coder);
+		if (is_stopped(coder->table))
+			break ;
 		debug(coder);
+		if (is_stopped(coder->table))
+			break ;
 		refactor(coder);
 	}
 	return (NULL);
@@ -35,28 +32,12 @@ void	*coder_routine(void *arg)
 
 void	debug(t_coder *coder)
 {
-	t_logger_args	args;
-	int				time;
-
-	time = coder->table->config->debug_time;
-	args.mutex = &coder->table->logger_mutex;
-	args.state = "D";
-	args.coder_id = coder->id;
-	args.timestamp = get_time_in_ms() - coder->table->start_time;
-	logger(args);
-	usleep(coder->table->config->debug_time);
+	log_state(coder, "D");
+	precise_sleep(coder->table, coder->table->config->debug_time);
 }
 
 void	refactor(t_coder *coder)
 {
-	t_logger_args	args;
-	int				time;
-
-	time = coder->table->config->refactor_time;
-	args.mutex = &coder->table->logger_mutex;
-	args.state = "R";
-	args.coder_id = coder->id;
-	args.timestamp = get_time_in_ms() - coder->table->start_time;
-	logger(args);
-	usleep(coder->table->config->refactor_time);
+	log_state(coder, "R");
+	precise_sleep(coder->table, coder->table->config->refactor_time);
 }

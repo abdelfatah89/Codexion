@@ -18,6 +18,7 @@
 // Logger
 void			logger(t_logger_args args);
 void			print_logs(char *state, int cid, int t);
+void			log_state(t_coder *coder, char *state);
 
 // Parser Function.
 t_config		*parser(int argc, char **argv);
@@ -37,7 +38,7 @@ void			init_mutex_cond(t_simulator *sim);
 // Dongle
 t_dongle		*init_dongles(int dongle_count, t_policy p);
 void			init_dongle(int id, t_dongle *dongle, t_policy p);
-void			take_dongle(t_dongle *dongle, t_coder *coder);
+bool			take_dongle(t_dongle *dongle, t_coder *coder);
 void			release_dongle(t_dongle *dongle, t_coder *coder);
 
 // Coder
@@ -49,7 +50,7 @@ t_dongle		*get_dongle(t_coder *coder, char *side);
 void			clear(t_simulator *sim);
 void			clear_simulator(t_simulator *sim);
 void			clear_dongles(t_dongle *dongles, int dongles_count);
-void			clear_coders(t_coder *coders);
+void			clear_coders(t_coder *coders, int coders_count);
 void			clear_config(t_config *config);
 
 // Coder Routine
@@ -65,10 +66,13 @@ void			send_request(t_coder *coder);
 void			*monitor_routine(void *arg);
 int				all_reached(t_coder *coders,
 					int coders_count, int count_required);
+void			stop_simulation(t_simulator *sim);
+bool			is_stopped(t_simulator *sim);
 
 // Timer
 long			get_time_in_ms(void);
-struct timespec	ms_to_timespec(long total_ms);
+struct timespec	abstime_after_ms(long ms);
+void			precise_sleep(t_simulator *sim, long ms);
 
 // Heap (priority queue)
 void			init_heap(t_heap *heap, t_policy policy);

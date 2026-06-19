@@ -36,39 +36,44 @@ void	init_dongle(int id, t_dongle *dongle, t_policy p)
 	dongle->id = id + 1;
 	dongle->owner = NULL;
 	dongle->cooldown_until = 0;
+	dongle->next_order = 0;
 	dongle->taken = false;
-	dongle->queue.size = 0;
-	dongle->queue.policy = p;
+	init_heap(&dongle->queue, p);
 }
 
-void	take_dongle(t_dongle *dongle, t_coder *coder)
+static bool	can_take(t_dongle *dongle, t_coder *coder)
 {
-	t_logger_args	args;
+	return (dongle->queue.size > 0
+		&& heap_peek(&dongle->queue).coder == coder
+		&& dongle->taken == false
+		&& get_time_in_ms() >= dongle->cooldown_until);
+}
+
+bool	take_dongle(t_dongle *dongle, t_coder *coder)
+{
 	struct timespec	ts;
 
-	ts = ms_to_timespec(coder->table->config->cooldown);
 	pthread_mutex_lock(&dongle->mutex);
-	while (!(heap_peek(&dongle->queue).coder == coder
-			&& dongle->taken == false
-			&& get_time_in_ms() >= dongle->cooldown_until))
+	while (!can_take(dongle, coder) && !is_stopped(coder->table))
 	{
-		pthread_cond_timedwait(&dongle->cond, &dongle->mutex,
-			&ts);
+		ts = abstime_after_ms(1);
+		pthread_cond_timedwait(&dongle->cond, &dongle->mutex, &ts);
 	}
+	if (is_stopped(coder->table))
+		return (pthread_mutex_unlock(&dongle->mutex), false);
 	heap_pop(&dongle->queue);
 	dongle->taken = true;
-	args.mutex = &coder->table->logger_mutex;
-	args.state = "TD";
-	args.coder_id = coder->id;
-	args.timestamp = get_time_in_ms() - coder->table->start_time;
-	logger(args);
+	dongle->owner = coder;
 	pthread_mutex_unlock(&dongle->mutex);
+	log_state(coder, "TD");
+	return (true);
 }
 
 void	release_dongle(t_dongle *dongle, t_coder *coder)
 {
 	pthread_mutex_lock(&dongle->mutex);
 	dongle->taken = false;
+	dongle->owner = NULL;
 	dongle->cooldown_until = get_time_in_ms() + coder->table->config->cooldown;
 	pthread_cond_broadcast(&dongle->cond);
 	pthread_mutex_unlock(&dongle->mutex);

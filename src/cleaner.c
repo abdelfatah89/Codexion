@@ -14,10 +14,13 @@
 
 void	clear(t_simulator *sim)
 {
-	clear_config(sim->config);
-	clear_dongles(sim->dongles, sim->config->coder_count);
-	clear_coders(sim->coders);
+	int	count;
+
+	count = sim->config->coder_count;
+	clear_dongles(sim->dongles, count);
+	clear_coders(sim->coders, count);
 	clear_simulator(sim);
+	clear_config(sim->config);
 }
 
 void	clear_simulator(t_simulator *sim)
@@ -40,8 +43,16 @@ void	clear_dongles(t_dongle *dongles, int dongles_count)
 	free(dongles);
 }
 
-void	clear_coders(t_coder *coders)
+void	clear_coders(t_coder *coders, int coders_count)
 {
+	int	i;
+
+	i = 0;
+	while (i < coders_count)
+	{
+		pthread_mutex_destroy(&coders[i].mutex);
+		i++;
+	}
 	free(coders);
 }
 

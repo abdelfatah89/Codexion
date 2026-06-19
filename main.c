@@ -21,4 +21,5 @@ int	main(int ac, char **av)
 		return (1);
 	clear(simulator);
 	free(simulator);
+	return (0);
 }

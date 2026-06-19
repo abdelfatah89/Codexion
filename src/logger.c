@@ -14,16 +14,22 @@
 
 void	logger(t_logger_args args)
 {
-	int				timestamp;
-	int				coder_id;
-	char			*state;
+	pthread_mutex_lock(&args.sim->logger_mutex);
+	if (args.fatal || !is_stopped(args.sim))
+		print_logs(args.state, args.coder_id, args.timestamp);
+	pthread_mutex_unlock(&args.sim->logger_mutex);
+}
 
-	timestamp = args.timestamp;
-	coder_id = args.coder_id;
-	state = args.state;
-	pthread_mutex_lock(args.mutex);
-	print_logs(state, coder_id, timestamp);
-	pthread_mutex_unlock(args.mutex);
+void	log_state(t_coder *coder, char *state)
+{
+	t_logger_args	args;
+
+	args.sim = coder->table;
+	args.state = state;
+	args.coder_id = coder->id;
+	args.timestamp = (int)(get_time_in_ms() - coder->table->start_time);
+	args.fatal = false;
+	logger(args);
 }
 
 void	print_logs(char *state, int cid, int t)

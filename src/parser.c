@@ -18,13 +18,16 @@ t_config	*parser(int argc, char **argv)
 	int			arr_int[7];
 	char		*schedular_type;
 
+	if (argc != 9)
+		return (printf("Usage: number_of_coders time_to_burnout "
+				"time_to_compile time_to_debug time_to_refactor "
+				"number_of_compiles_required dongle_cooldown scheduler\n"),
+			NULL);
 	if (!s2i_checker(argv))
 		return (printf("Invalid arguments\n"), NULL);
 	args = malloc(sizeof(t_config));
 	if (!args)
 		return (NULL);
-	if (argc < 9)
-		return (free(args), NULL);
 	arr_int[0] = atoi(argv[1]);
 	arr_int[1] = atoi(argv[2]);
 	arr_int[2] = atoi(argv[3]);
@@ -74,7 +77,7 @@ int	checker(int *arr_int, char *schedular_type)
 	int	i;
 
 	i = 0;
-	while (i < 8)
+	while (i < 7)
 	{
 		if (arr_int[i] < 0)
 			return (0);

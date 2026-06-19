@@ -12,52 +12,70 @@
 
 #include "../include/codexion.h"
 
-void	compile(t_coder *coder)
+static void	mark_compiling(t_coder *coder)
 {
-	long			compile_time;
-	t_logger_args	args;
-
-	args.coder_id = coder->id;
-	args.state = "C";
-	args.timestamp = get_time_in_ms() - coder->table->start_time;
-	args.mutex = &coder->table->logger_mutex;
-	send_request(coder);
-	take_dongle(coder->left, coder);
-	take_dongle(coder->right, coder);
-	logger(args);
-	coder->last_compile_start = get_time_in_ms() - coder->table->start_time;
+	pthread_mutex_lock(&coder->mutex);
+	coder->last_compile_start = get_time_in_ms();
 	coder->compile_count++;
-	compile_time = coder->table->config->compile_time;
-	usleep(compile_time);
-	release_dongle(coder->left, coder);
-	release_dongle(coder->right, coder);
+	pthread_mutex_unlock(&coder->mutex);
+	log_state(coder, "C");
+}
+
+static void	push_request(t_dongle *dongle, t_coder *coder)
+{
+	t_request	request;
+
+	request.coder = coder;
+	pthread_mutex_lock(&coder->mutex);
+	request.deadline = coder->last_compile_start
+		+ coder->table->config->burnout_time;
+	pthread_mutex_unlock(&coder->mutex);
+	pthread_mutex_lock(&dongle->mutex);
+	request.order = dongle->next_order++;
+	heap_push(&dongle->queue, request);
+	pthread_cond_broadcast(&dongle->cond);
+	pthread_mutex_unlock(&dongle->mutex);
 }
 
 void	send_request(t_coder *coder)
 {
-	t_request		request;
-	t_dongle		*first;
-	t_dongle		*second;
-
-	request.coder = coder;
-	request.deadline = coder->last_compile_start
-		+ coder->table->config->burnout_time;
+	if (coder->left == coder->right)
+		return (push_request(coder->left, coder));
 	if (coder->left->id < coder->right->id)
 	{
-		first = coder->left;
-		second = coder->right;
+		push_request(coder->left, coder);
+		push_request(coder->right, coder);
 	}
 	else
 	{
-		first = coder->right;
-		second = coder->left;
+		push_request(coder->right, coder);
+		push_request(coder->left, coder);
 	}
-	pthread_mutex_lock(&first->mutex);
-	request.order = first->queue.size + 1;
-	heap_push(&first->queue, request);
-	pthread_mutex_unlock(&first->mutex);
-	pthread_mutex_lock(&second->mutex);
-	request.order = second->queue.size + 1;
-	heap_push(&second->queue, request);
-	pthread_mutex_unlock(&second->mutex);
+}
+
+void	compile(t_coder *coder)
+{
+	t_dongle	*first;
+	t_dongle	*second;
+
+	send_request(coder);
+	if (coder->left == coder->right)
+	{
+		if (take_dongle(coder->left, coder))
+			precise_sleep(coder->table, coder->table->config->burnout_time + 1);
+		release_dongle(coder->left, coder);
+		return ;
+	}
+	first = coder->left;
+	second = coder->right;
+	if (coder->right->id < coder->left->id)
+		(first = coder->right, second = coder->left);
+	if (!take_dongle(first, coder))
+		return ;
+	if (!take_dongle(second, coder))
+		return (release_dongle(first, coder));
+	mark_compiling(coder);
+	precise_sleep(coder->table, coder->table->config->compile_time);
+	release_dongle(first, coder);
+	release_dongle(second, coder);
 }

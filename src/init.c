@@ -22,7 +22,7 @@ t_simulator	*init(int ac, char **av)
 		return (NULL);
 	sim = init_simulator(config);
 	if (!sim)
-		return (NULL);
+		return (free(config), NULL);
 	init_mutex_cond(sim);
 	init_threads(sim);
 	return (sim);
@@ -38,8 +38,13 @@ t_simulator	*init_simulator(t_config *config)
 	sim->config = config;
 	sim->start_time = get_time_in_ms();
 	sim->stop = false;
+	sim->coders = NULL;
+	sim->dongles = init_dongles(config->coder_count, config->scheduler);
+	if (!sim->dongles)
+		return (free(sim), NULL);
 	sim->coders = init_coders(config->coder_count, sim);
-	sim->dongles = init_dongles(config->coder_count, sim->config->scheduler);
+	if (!sim->coders)
+		return (free(sim->dongles), free(sim), NULL);
 	return (sim);
 }
 
@@ -58,16 +63,20 @@ void	init_threads(t_simulator *sim)
 	int	i;
 
 	i = 0;
+	sim->start_time = get_time_in_ms();
 	while (i < sim->config->coder_count)
 	{
-		pthread_create(
-			&sim->coders[i].thread,
-			NULL,
-			coder_routine,
-			&sim->coders[i]);
+		sim->coders[i].last_compile_start = sim->start_time;
 		i++;
 	}
-	pthread_create(&sim->monitor, NULL, monitor_routine, &sim);
+	i = 0;
+	while (i < sim->config->coder_count)
+	{
+		pthread_create(&sim->coders[i].thread, NULL,
+			coder_routine, &sim->coders[i]);
+		i++;
+	}
+	pthread_create(&sim->monitor, NULL, monitor_routine, sim);
 	i = 0;
 	while (i < sim->config->coder_count)
 	{
@@ -86,8 +95,7 @@ void	init_mutex_cond(t_simulator *sim)
 	pthread_mutex_init(&sim->stop_mutex, NULL);
 	while (i < sim->config->coder_count)
 	{
-		pthread_mutex_init(&sim->dongles[i].mutex, NULL);
-		pthread_cond_init(&sim->dongles[i].cond, NULL);
+		pthread_mutex_init(&sim->coders[i].mutex, NULL);
 		i++;
 	}
 }

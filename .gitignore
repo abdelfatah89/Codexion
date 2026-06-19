@@ -1,0 +1,8 @@
+# Build artifacts
+codexion
+*.o
+*.a
+
+# Editor / OS
+*.swp
+.DS_Store
