@@ -3,14 +3,15 @@ SRCS = src/cleaner.c \
        src/coder.c \
        src/compile.c \
        src/dongle.c \
+       src/heap.c \
+       src/heap_tools.c \
        src/init.c \
        src/logger.c \
-       src/main.c \
        src/monitor.c \
        src/parser.c \
        src/routine.c \
-       src/scheduler.c \
-       src/timer.c
+       src/timer.c \
+       main.c
 
 OBJS = $(SRCS:.c=.o)
 CC = cc

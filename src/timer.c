@@ -6,7 +6,7 @@
 /*   By: alaktaou <alaktaou@student.1337.ma>       #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/16 08:40:30 by alaktaou         #+#    #+#              */
-/*   Updated: 2026/06/16 08:40:30 by alaktaou        ###   ########.fr        */
+/*   Updated: 2026/06/18 08:57:01 by alaktaou        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,11 @@ long	get_time_in_ms(void)
 	return (tv.tv_sec * 1000L + tv.tv_usec / 1000L);
 }
 
-void	cooldown_timer(long duration)
+struct timespec	ms_to_timespec(long total_ms)
 {
-	long	start;
+	struct timespec	ts;
 
-	start = get_time_in_ms;
-	while (get_time_in_ms() - start < duration)
-	{
-		pthread_cond_wait();
-	}
+	ts.tv_sec = total_ms / 1000;
+	ts.tv_nsec = (total_ms % 1000) * 1000000;
+	return (ts);
 }

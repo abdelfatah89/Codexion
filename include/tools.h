@@ -16,49 +16,67 @@
 # include "models.h"
 
 // Logger
-void		logger(t_logger_args *args);
-void		print_logs(char *state, int cid, int t);
+void			logger(t_logger_args args);
+void			print_logs(char *state, int cid, int t);
 
 // Parser Function.
-t_config	*parser(int argc, char **argv);
-int			checker(int *arr_int, char *schedular_type);
-void		assing_values(t_config *args, int *arr_int, char *schedular_type);
+t_config		*parser(int argc, char **argv);
+int				is_not_digit(char *s);
+int				s2i_checker(char **args);
+int				checker(int *arr_int, char *schedular_type);
+void			assing_values(t_config *args, int *arr_int,
+					char *schedular_type);
 
 // Init
-t_simulator	*init(int ac, char **av);
-t_config	*init_config(int ac, char **av);
-t_simulator	*init_simulator(t_config *config);
-void		init_threads(t_simulator *sim);
-void		init_mutex_cond(t_simulator *sim);
+t_simulator		*init(int ac, char **av);
+t_config		*init_config(int ac, char **av);
+t_simulator		*init_simulator(t_config *config);
+void			init_threads(t_simulator *sim);
+void			init_mutex_cond(t_simulator *sim);
 
 // Dongle
-t_dongle	*init_dongles(int dongle_count);
-void		init_dongle(int id, t_dongle *dongle);
-void		take_dongle(t_dongle *dongle);
-void		release_dongle(t_dongle *dongle, long cooldown);
+t_dongle		*init_dongles(int dongle_count, t_policy p);
+void			init_dongle(int id, t_dongle *dongle, t_policy p);
+void			take_dongle(t_dongle *dongle, t_coder *coder);
+void			release_dongle(t_dongle *dongle, t_coder *coder);
 
 // Coder
-t_coder		*init_coders(int coder_count, t_simulator *sim);
-void		init_coder(int id, t_coder *coder, t_simulator *sim);
-t_dongle	*get_dongle(t_coder *coder, char *side);
+t_coder			*init_coders(int coder_count, t_simulator *sim);
+void			init_coder(int id, t_coder *coder, t_simulator *sim);
+t_dongle		*get_dongle(t_coder *coder, char *side);
 
 // Cleaner
-void		clear(t_simulator *sim);
-void		clear_dongles(t_dongle *dongles);
-void		clear_coders(t_coder *coders);
-void		clear_config(t_config *config);
+void			clear(t_simulator *sim);
+void			clear_simulator(t_simulator *sim);
+void			clear_dongles(t_dongle *dongles, int dongles_count);
+void			clear_coders(t_coder *coders);
+void			clear_config(t_config *config);
 
 // Coder Routine
-void		coder_routine(t_coder *coder);
-void		compile(t_coder *coder);
-void		debug(t_coder *coder);
-void		refactor(t_coder *coder);
+void			*coder_routine(void *arg);
+void			compile(t_coder *coder);
+void			debug(t_coder *coder);
+void			refactor(t_coder *coder);
+
+// Compile
+void			send_request(t_coder *coder);
 
 // Monitor Routine
-void		monitor_routine(void);
+void			*monitor_routine(void *arg);
+int				all_reached(t_coder *coders,
+					int coders_count, int count_required);
 
 // Timer
-long		get_time_in_ms(void);
-void		timer(long duration);
+long			get_time_in_ms(void);
+struct timespec	ms_to_timespec(long total_ms);
+
+// Heap (priority queue)
+void			init_heap(t_heap *heap, t_policy policy);
+int				heap_size(t_heap *heap);
+void			heap_push(t_heap *heap, t_request request);
+t_request		heap_peek(t_heap *heap);
+t_request		heap_pop(t_heap *heap);
+int				compare_requests(t_request a, t_request b, t_policy p);
+void			swap_requests(t_request *a, t_request *b);
 
 #endif

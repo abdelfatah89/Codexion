@@ -12,28 +12,25 @@
 
 #include "../include/codexion.h"
 
-void	logger(t_logger_args *args)
+void	logger(t_logger_args args)
 {
-	pthread_mutex_t	*mutex;
 	int				timestamp;
 	int				coder_id;
 	char			*state;
 
-	mutex = args->mutex;
-	timestamp = args->timestamp;
-	coder_id = args->coder_id;
-	state = args->state;
-	pthread_mutex_lock(mutex);
-	print_logs(&state, coder_id, timestamp);
-	pthread_mutex_unlock(mutex);
-	free(args);
+	timestamp = args.timestamp;
+	coder_id = args.coder_id;
+	state = args.state;
+	pthread_mutex_lock(args.mutex);
+	print_logs(state, coder_id, timestamp);
+	pthread_mutex_unlock(args.mutex);
 }
 
 void	print_logs(char *state, int cid, int t)
 {
 	if (strcmp(state, "TD") == 0)
 	{
-		printf("%d %d  has taken a dongle\n", t, cid);
+		printf("%d %d has taken a dongle\n", t, cid);
 	}
 	else if (strcmp(state, "C") == 0)
 	{

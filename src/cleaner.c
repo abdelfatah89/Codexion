@@ -14,32 +14,27 @@
 
 void	clear(t_simulator *sim)
 {
-	clear_config(&sim->config);
-	clear_dongles(&sim->dongles);
-	clear_coders(&sim->coders);
-	clear_simulator(&sim);
+	clear_config(sim->config);
+	clear_dongles(sim->dongles, sim->config->coder_count);
+	clear_coders(sim->coders);
+	clear_simulator(sim);
 }
 
 void	clear_simulator(t_simulator *sim)
 {
 	pthread_mutex_destroy(&sim->stop_mutex);
 	pthread_mutex_destroy(&sim->logger_mutex);
-	free(sim);
 }
 
-void	clear_dongles(t_dongle *dongles)
+void	clear_dongles(t_dongle *dongles, int dongles_count)
 {
 	int	i;
-	int	len;
 
 	i = 0;
-	len = sizeof(dongles) / sizeof(t_dongle);
-	while (i < len)
+	while (i < dongles_count)
 	{
-		pthread_mutex_destroy(dongles[i].mutex);
-		pthread_cond_destroy(dongles[i].cond);
-		free(dongles[i].queue->requests);
-		free(dongles[i].queue);
+		pthread_mutex_destroy(&dongles[i].mutex);
+		pthread_cond_destroy(&dongles[i].cond);
 		i++;
 	}
 	free(dongles);

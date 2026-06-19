@@ -39,7 +39,7 @@ t_simulator	*init_simulator(t_config *config)
 	sim->start_time = get_time_in_ms();
 	sim->stop = false;
 	sim->coders = init_coders(config->coder_count, sim);
-	sim->dongles = init_dongles(config->coder_count);
+	sim->dongles = init_dongles(config->coder_count, sim->config->scheduler);
 	return (sim);
 }
 
@@ -67,12 +67,14 @@ void	init_threads(t_simulator *sim)
 			&sim->coders[i]);
 		i++;
 	}
+	pthread_create(&sim->monitor, NULL, monitor_routine, &sim);
 	i = 0;
 	while (i < sim->config->coder_count)
 	{
-		pthread_join(&sim->coders[i].thread, NULL);
+		pthread_join(sim->coders[i].thread, NULL);
 		i++;
 	}
+	pthread_join(sim->monitor, NULL);
 }
 
 void	init_mutex_cond(t_simulator *sim)

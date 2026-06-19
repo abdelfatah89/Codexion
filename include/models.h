@@ -17,22 +17,43 @@ typedef struct s_coder		t_coder;
 typedef struct s_dongle		t_dongle;
 typedef struct s_simulator	t_simulator;
 typedef struct s_heap		t_heap;
+typedef struct s_request	t_request;
+
+typedef enum e_policy
+{
+	POLICY_FIFO,
+	POLICY_EDF
+}	t_policy;
 
 typedef struct s_config
 {
-	int		coder_count;
-	long	burnout_time;
-	long	compile_time;
-	long	debug_time;
-	long	refactor_time;
-	long	cooldown;
-	int		required_compiles;
-	char	*scheduler;
+	int			coder_count;
+	long		burnout_time;
+	long		compile_time;
+	long		debug_time;
+	long		refactor_time;
+	long		cooldown;
+	int			required_compiles;
+	t_policy	scheduler;
 }	t_config;
+
+typedef struct s_request
+{
+	t_coder	*coder;
+	long	order;
+	long	deadline;
+}	t_request;
+
+typedef struct s_heap
+{
+	t_request	requests[2];
+	int			size;
+	t_policy	policy;
+}	t_heap;
 
 typedef struct s_logger_args
 {
-	pthread_mutex_t	mutex;
+	pthread_mutex_t	*mutex;
 	int				timestamp;
 	int				coder_id;
 	char			*state;
@@ -53,6 +74,7 @@ typedef struct s_simulator
 typedef struct s_dongle
 {
 	int				id;
+	t_coder			*owner;
 	pthread_mutex_t	mutex;
 	pthread_cond_t	cond;
 	long			cooldown_until;
@@ -70,18 +92,5 @@ typedef struct s_coder
 	int			compile_count;
 	t_simulator	*table;
 }	t_coder;
-
-typedef struct s_request
-{
-	t_coder	*coder;
-	long	order;
-	long	deadline;
-}	t_request;
-
-typedef struct s_heap
-{
-	t_request	requests[2];
-	int			size;
-}	t_heap;
 
 #endif

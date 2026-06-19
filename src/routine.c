@@ -12,43 +12,51 @@
 
 #include "../include/codexion.h"
 
-void	*coder_routine(t_coder *coder)
+void	*coder_routine(void *arg)
 {
-	bool	stop;
+	t_coder	*coder;
 
-	stop = coder->table->stop;
-	while (!stop)
+	coder = (t_coder *)arg;
+	while (1)
 	{
+		pthread_mutex_lock(&coder->table->stop_mutex);
+		if (coder->table->stop)
+		{
+			pthread_mutex_unlock(&coder->table->stop_mutex);
+			break ;
+		}
+		pthread_mutex_unlock(&coder->table->stop_mutex);
 		compile(coder);
 		debug(coder);
 		refactor(coder);
 	}
+	return (NULL);
 }
 
 void	debug(t_coder *coder)
 {
-	t_logger_args	*args;
+	t_logger_args	args;
 	int				time;
 
 	time = coder->table->config->debug_time;
-	args->mutex = coder->table->logger_mutex;
-	args->state = "D";
-	args->coder_id = coder->id;
-	args->timestamp = get_time_in_ms() - coder->table->start_time;
+	args.mutex = &coder->table->logger_mutex;
+	args.state = "D";
+	args.coder_id = coder->id;
+	args.timestamp = get_time_in_ms() - coder->table->start_time;
 	logger(args);
-	timer(time);
+	usleep(coder->table->config->debug_time);
 }
 
 void	refactor(t_coder *coder)
 {
-	t_logger_args	*args;
+	t_logger_args	args;
 	int				time;
 
 	time = coder->table->config->refactor_time;
-	args->mutex = coder->table->logger_mutex;
-	args->state = "R";
-	args->coder_id = coder->id;
-	args->timestamp = get_time_in_ms() - coder->table->start_time;
+	args.mutex = &coder->table->logger_mutex;
+	args.state = "R";
+	args.coder_id = coder->id;
+	args.timestamp = get_time_in_ms() - coder->table->start_time;
 	logger(args);
-	timer(time);
+	usleep(coder->table->config->refactor_time);
 }

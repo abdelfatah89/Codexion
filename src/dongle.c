@@ -12,7 +12,7 @@
 
 #include "../include/codexion.h"
 
-t_dongle	*init_dongles(int dongle_count)
+t_dongle	*init_dongles(int dongle_count, t_policy p)
 {
 	int				i;
 	t_dongle		*dongles;
@@ -23,52 +23,53 @@ t_dongle	*init_dongles(int dongle_count)
 		return (NULL);
 	while (i < dongle_count)
 	{
-		init_dongle(i, &dongles[i]);
+		init_dongle(i, &dongles[i], p);
 		i++;
 	}
 	return (dongles);
 }
 
-void	init_dongle(int id, t_dongle *dongle)
+void	init_dongle(int id, t_dongle *dongle, t_policy p)
 {
 	pthread_cond_init(&dongle->cond, NULL);
 	pthread_mutex_init(&dongle->mutex, NULL);
 	dongle->id = id + 1;
+	dongle->owner = NULL;
 	dongle->cooldown_until = 0;
 	dongle->taken = false;
 	dongle->queue.size = 0;
+	dongle->queue.policy = p;
 }
 
-void	take_dongle(t_dongle *dongle)
+void	take_dongle(t_dongle *dongle, t_coder *coder)
 {
-	pthread_mutex_t	mutex;
-	pthread_cond_t	cond;
+	t_logger_args	args;
+	struct timespec	ts;
 
-	mutex = dongle->mutex;
-	cond = dongle->cond;
-	pthread_mutex_lock(&mutex);
-	while (dongle->taken == false && dongle->cooldown_until > 0)
+	ts = ms_to_timespec(coder->table->config->cooldown);
+	pthread_mutex_lock(&dongle->mutex);
+	while (!(heap_peek(&dongle->queue).coder == coder
+			&& dongle->taken == false
+			&& get_time_in_ms() >= dongle->cooldown_until))
 	{
-		pthread_cond_wait(&cond, &mutex);
+		pthread_cond_timedwait(&dongle->cond, &dongle->mutex,
+			&ts);
 	}
+	heap_pop(&dongle->queue);
 	dongle->taken = true;
-	pthread_mutex_unlock(&mutex);
+	args.mutex = &coder->table->logger_mutex;
+	args.state = "TD";
+	args.coder_id = coder->id;
+	args.timestamp = get_time_in_ms() - coder->table->start_time;
+	logger(args);
+	pthread_mutex_unlock(&dongle->mutex);
 }
 
-void	release_dongle(t_coder *coder, char *side)
+void	release_dongle(t_dongle *dongle, t_coder *coder)
 {
-	pthread_mutex_t	mutex;
-	t_dongle		*dongle;
-	long			cooldown;
-
-	cooldown = coder->table->config->cooldown;
-	if (strcmp(side, "left"))
-		dongle = &coder->left;
-	else if (strcmp(side, "right"))
-		dongle = &coder->right;
-	mutex = dongle->mutex;
-	pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&dongle->mutex);
 	dongle->taken = false;
-	dongle->cooldown_until = get_time_in_ms() + cooldown;
-	pthread_mutex_unlock(&mutex);
+	dongle->cooldown_until = get_time_in_ms() + coder->table->config->cooldown;
+	pthread_cond_broadcast(&dongle->cond);
+	pthread_mutex_unlock(&dongle->mutex);
 }

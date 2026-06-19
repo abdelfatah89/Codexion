@@ -14,43 +14,50 @@
 
 void	compile(t_coder *coder)
 {
-	t_logger_args	*args;
 	long			compile_time;
+	t_logger_args	args;
 
-	args = malloc(sizeof(t_logger_args));
-	if (!args)
-		return (NULL);
-	send_request(&coder, "left");
-	send_request(&coder, "right");
-	while (!coder->left || !coder->right)
-	{
-		if (!coder->left)
-			pthread_cond_wait(&coder->left->cond, NULL);
-		else
-			pthread_cond_wait(&coder->right->cond, NULL);
-	}
-	compile_time = coder->table->config->compile_time;
-	args->mutex = coder->table->logger_mutex;
-	args->state = "C";
-	args->coder_id = coder->id;
-	args->timestamp = get_time_in_ms() - coder->table->start_time;
-	coder->last_compile_start = get_time_in_ms() - coder->table->start_time;
+	args.coder_id = coder->id;
+	args.state = "C";
+	args.timestamp = get_time_in_ms() - coder->table->start_time;
+	args.mutex = &coder->table->logger_mutex;
+	send_request(coder);
+	take_dongle(coder->left, coder);
+	take_dongle(coder->right, coder);
 	logger(args);
-	timer(compile_time);
+	coder->last_compile_start = get_time_in_ms() - coder->table->start_time;
+	coder->compile_count++;
+	compile_time = coder->table->config->compile_time;
+	usleep(compile_time);
+	release_dongle(coder->left, coder);
+	release_dongle(coder->right, coder);
 }
 
-void	send_request(t_coder *coder, char *side)
+void	send_request(t_coder *coder)
 {
-	t_request		*request;
-	t_dongle		*dongle;
-	long			burnout;
+	t_request		request;
+	t_dongle		*first;
+	t_dongle		*second;
 
-	dongle = get_dongle(coder, side);
-	pthread_mutex_lock(&dongle->mutex);
-	burnout = coder->table->config->burnout_time;
-	request->coder = &coder;
-	request->deadline = coder->last_compile_start + burnout;
-	request->order = dongle->queue->size + 1;
-	dongle->queue->requests[dongle->queue->size] = *request;
-	pthread_mutex_unlock(&dongle->mutex);
+	request.coder = coder;
+	request.deadline = coder->last_compile_start
+		+ coder->table->config->burnout_time;
+	if (coder->left->id < coder->right->id)
+	{
+		first = coder->left;
+		second = coder->right;
+	}
+	else
+	{
+		first = coder->right;
+		second = coder->left;
+	}
+	pthread_mutex_lock(&first->mutex);
+	request.order = first->queue.size + 1;
+	heap_push(&first->queue, request);
+	pthread_mutex_unlock(&first->mutex);
+	pthread_mutex_lock(&second->mutex);
+	request.order = second->queue.size + 1;
+	heap_push(&second->queue, request);
+	pthread_mutex_unlock(&second->mutex);
 }

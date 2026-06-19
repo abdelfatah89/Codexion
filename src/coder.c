@@ -23,20 +23,18 @@ t_coder	*init_coders(int coder_count, t_simulator *sim)
 		return (NULL);
 	while (i < coder_count)
 	{
-		init_coder(i, &coders[i], &sim);
+		init_coder(i, &coders[i], sim);
+		i++;
 	}
 	return (coders);
 }
 
 void	init_coder(int id, t_coder *coder, t_simulator *sim)
 {
-	pthread_t	thread;
-
 	coder->table = sim;
 	coder->id = id + 1;
-	coder->thread = thread;
-	coder->right = NULL;
-	coder->left = NULL;
+	coder->right = get_dongle(coder, "right");
+	coder->left = get_dongle(coder, "left");
 	coder->compile_count = 0;
 	coder->last_compile_start = sim->start_time;
 }

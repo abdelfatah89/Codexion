@@ -1,20 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                       :::      ::::::::    */
-/*   scheduler.c                                       :+:      :+:    :+:    */
+/*   heap_tools.c                                      :+:      :+:    :+:    */
 /*                                                   +:+ +:+         +:+      */
 /*   By: alaktaou <alaktaou@student.1337.ma>       #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/17 08:54:07 by alaktaou         #+#    #+#              */
-/*   Updated: 2026/06/17 08:54:07 by alaktaou        ###   ########.fr        */
+/*   Created: 2026/06/18 06:45:26 by alaktaou         #+#    #+#              */
+/*   Updated: 2026/06/18 06:45:26 by alaktaou        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/codexion.h"
 
-void	scheduler(t_dongle *dongle, t_request *request, char *type)
+int	compare_requests(t_request a, t_request b, t_policy p)
 {
-	if (strcmp(type, "fifo") == 0)
+	if (p == POLICY_EDF)
 	{
+		if (a.deadline != b.deadline)
+			return (a.deadline < b.deadline);
+		if (a.order != b.order)
+			return (a.order < b.order);
+		return (a.coder->id < b.coder->id);
 	}
+	return (a.order < b.order);
+}
+
+void	swap_requests(t_request *a, t_request *b)
+{
+	t_request	tmp;
+
+	tmp = *a;
+	*a = *b;
+	*b = tmp;
 }

@@ -10,16 +10,15 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/codexion.h"
+#include "include/codexion.h"
 
 int	main(int ac, char **av)
 {
-	t_config		*config;
 	t_simulator		*simulator;
-	t_logger_args	*args;
 
 	simulator = init(ac, av);
 	if (!simulator)
-		return (-1);
+		return (1);
 	clear(simulator);
+	free(simulator);
 }

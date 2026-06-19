@@ -16,7 +16,6 @@ t_config	*parser(int argc, char **argv)
 {
 	t_config	*args;
 	int			arr_int[7];
-	int			i;
 	char		*schedular_type;
 
 	if (!s2i_checker(argv))
@@ -49,7 +48,7 @@ int	is_not_digit(char *s)
 		return (1);
 	while (s[i])
 	{
-		if (s[i] > 57 && s[i] < 48)
+		if (s[i] > 57 || s[i] < 48)
 			return (1);
 		i++;
 	}
@@ -65,6 +64,7 @@ int	s2i_checker(char **args)
 	{
 		if (is_not_digit(args[i]))
 			return (0);
+		i++;
 	}
 	return (1);
 }
@@ -74,7 +74,7 @@ int	checker(int *arr_int, char *schedular_type)
 	int	i;
 
 	i = 0;
-	while (arr_int[i])
+	while (i < 8)
 	{
 		if (arr_int[i] < 0)
 			return (0);
@@ -97,5 +97,8 @@ void	assing_values(t_config *args, int *arr_int, char *schedular_type)
 	args->refactor_time = arr_int[4];
 	args->required_compiles = arr_int[5];
 	args->cooldown = arr_int[6];
-	args->scheduler = schedular_type;
+	if (strcmp(schedular_type, "fifo") == 0)
+		args->scheduler = POLICY_FIFO;
+	else
+		args->scheduler = POLICY_EDF;
 }
