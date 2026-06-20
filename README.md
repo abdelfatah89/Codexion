@@ -33,8 +33,10 @@ chosen scheduling policy.
 
 ```bash
 make          # build the codexion binary
+make run      # build and clean up after running
 make clean    # remove object files
 make fclean   # remove object files and the binary
+make lint     # run the linter
 make re       # rebuild from scratch
 ```
 
@@ -176,18 +178,11 @@ ThreadSanitizer and free of memory leaks with Valgrind.
 
 ## Resources
 
-- [POSIX Threads Programming (LLNL tutorial)](https://hpc-tutorials.llnl.gov/posix/)
-- `man` pages: `pthread_create`, `pthread_mutex_init`, `pthread_cond_wait`,
-  `pthread_cond_timedwait`, `pthread_cond_broadcast`, `gettimeofday`, `usleep`.
-- Edsger W. Dijkstra, *Hierarchical ordering of sequential processes* — the
-  Dining Philosophers problem and resource-ordering deadlock avoidance.
-- E. G. Coffman, M. Elphick, A. Shoshani, *System Deadlocks* — the four
-  necessary conditions for deadlock (mutual exclusion, hold-and-wait, no
-  preemption, circular wait).
-- Liu & Layland, *Scheduling Algorithms for Multiprogramming in a Hard-Real-Time
-  Environment* — Earliest Deadline First (EDF) scheduling.
-- Binary heap / priority queue fundamentals (Cormen et al., *Introduction to
-  Algorithms*).
+- [CONCURRENCY IS NOT WHAT YOU THINK](https://www.youtube.com/watch?v=3X93PnKRNUo&t=1s)
+- [The Most Successful Idea in Computer Science](https://www.youtube.com/watch?v=LDhoD4IVElk)
+- [Why Are Threads Needed On Single Core Processors](https://www.youtube.com/watch?v=M9HHWFp84f0&t=842s)
+- [Threads On Multicore Systems](https://www.youtube.com/watch?v=5sw9XJokAqw&t=64s)
+- [Unix Threads in C - PlayList (1 -> 11, 16, 17, 19, 20)](https://www.youtube.com/watch?v=d9s_d28yJq0&list=PLfqABt5AS4FmuQf70psXrsMLEDQXNkLq2)
 
 ### Use of AI
 
