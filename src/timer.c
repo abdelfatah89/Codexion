@@ -40,5 +40,5 @@ void	precise_sleep(t_simulator *sim, long ms)
 
 	start = get_time_in_ms();
 	while (!is_stopped(sim) && get_time_in_ms() - start < ms)
-		usleep(200);
+		usleep(100);
 }

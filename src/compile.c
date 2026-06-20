@@ -53,6 +53,14 @@ void	send_request(t_coder *coder)
 	}
 }
 
+void	_compile(t_coder *coder, t_dongle *first, t_dongle *second)
+{
+	mark_compiling(coder);
+	precise_sleep(coder->table, coder->table->config->compile_time);
+	release_dongle(first, coder);
+	release_dongle(second, coder);
+}
+
 void	compile(t_coder *coder)
 {
 	t_dongle	*first;
@@ -69,13 +77,13 @@ void	compile(t_coder *coder)
 	first = coder->left;
 	second = coder->right;
 	if (coder->right->id < coder->left->id)
-		(first = coder->right, second = coder->left);
+	{
+		first = coder->right;
+		second = coder->left;
+	}
 	if (!take_dongle(first, coder))
 		return ;
 	if (!take_dongle(second, coder))
 		return (release_dongle(first, coder));
-	mark_compiling(coder);
-	precise_sleep(coder->table, coder->table->config->compile_time);
-	release_dongle(first, coder);
-	release_dongle(second, coder);
+	_compile(coder, first, second);
 }

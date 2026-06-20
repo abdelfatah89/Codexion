@@ -12,17 +12,12 @@
 
 #include "../include/codexion.h"
 
-t_config	*parser(int argc, char **argv)
+t_config	*parser(char **argv)
 {
 	t_config	*args;
 	int			arr_int[7];
 	char		*schedular_type;
 
-	if (argc != 9)
-		return (printf("Usage: number_of_coders time_to_burnout "
-				"time_to_compile time_to_debug time_to_refactor "
-				"number_of_compiles_required dongle_cooldown scheduler\n"),
-			NULL);
 	if (!s2i_checker(argv))
 		return (printf("Invalid arguments\n"), NULL);
 	args = malloc(sizeof(t_config));

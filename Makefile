@@ -15,8 +15,11 @@ SRCS = src/cleaner.c \
 
 OBJS = $(SRCS:.c=.o)
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -pthread
+CFLAGS = -Wall -Wextra -Werror -pthread 
 RM = rm -f
+NORMINETTE = norminette
+
+run: all clean
 
 all: $(NAME)
 
@@ -28,6 +31,9 @@ clean:
 
 fclean: clean
 	$(RM) $(NAME)
+
+lint:
+	$(NORMINETTE) .
 
 re: fclean all
 

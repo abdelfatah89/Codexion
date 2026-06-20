@@ -21,7 +21,7 @@ void			print_logs(char *state, int cid, int t);
 void			log_state(t_coder *coder, char *state);
 
 // Parser Function.
-t_config		*parser(int argc, char **argv);
+t_config		*parser(char **argv);
 int				is_not_digit(char *s);
 int				s2i_checker(char **args);
 int				checker(int *arr_int, char *schedular_type);

@@ -52,7 +52,12 @@ t_config	*init_config(int ac, char **av)
 {
 	t_config	*config;
 
-	config = parser(ac, av);
+	if (ac != 9)
+		return (
+			printf("Usage: number_of_coders time_to_burnout time_to_compile"
+				" time_to_debug time_to_refactor number_of_compiles_required"
+				" dongle_cooldown scheduler\n"), NULL);
+	config = parser(av);
 	if (!config)
 		return (NULL);
 	return (config);
