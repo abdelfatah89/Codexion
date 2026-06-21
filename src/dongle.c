@@ -41,12 +41,11 @@ void	init_dongle(int id, t_dongle *dongle, t_policy p)
 	init_heap(&dongle->queue, p);
 }
 
-static bool	can_take(t_dongle *dongle, t_coder *coder)
+static bool	is_next(t_dongle *dongle, t_coder *coder)
 {
 	return (dongle->queue.size > 0
 		&& heap_peek(&dongle->queue).coder == coder
-		&& dongle->taken == false
-		&& get_time_in_ms() >= dongle->cooldown_until);
+		&& dongle->taken == false);
 }
 
 bool	take_dongle(t_dongle *dongle, t_coder *coder)
@@ -54,10 +53,16 @@ bool	take_dongle(t_dongle *dongle, t_coder *coder)
 	struct timespec	ts;
 
 	pthread_mutex_lock(&dongle->mutex);
-	while (!can_take(dongle, coder) && !is_stopped(coder->table))
+	while (!is_stopped(coder->table) && !(is_next(dongle, coder)
+			&& get_time_in_ms() >= dongle->cooldown_until))
 	{
-		ts = abstime_after_ms(1);
-		pthread_cond_timedwait(&dongle->cond, &dongle->mutex, &ts);
+		if (is_next(dongle, coder))
+		{
+			ts = abstime_at_ms(dongle->cooldown_until);
+			pthread_cond_timedwait(&dongle->cond, &dongle->mutex, &ts);
+		}
+		else
+			pthread_cond_wait(&dongle->cond, &dongle->mutex);
 	}
 	if (is_stopped(coder->table))
 		return (pthread_mutex_unlock(&dongle->mutex), false);

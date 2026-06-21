@@ -71,7 +71,7 @@ bool			is_stopped(t_simulator *sim);
 
 // Timer
 long			get_time_in_ms(void);
-struct timespec	abstime_after_ms(long ms);
+struct timespec	abstime_at_ms(long abs_ms);
 void			precise_sleep(t_simulator *sim, long ms);
 
 // Heap (priority queue)
