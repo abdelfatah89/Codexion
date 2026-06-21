@@ -19,8 +19,6 @@ CFLAGS = -Wall -Wextra -Werror -pthread
 RM = rm -f
 NORMINETTE = norminette
 
-run: all clean
-
 all: $(NAME)
 
 $(NAME): $(OBJS)
@@ -32,9 +30,11 @@ clean:
 fclean: clean
 	$(RM) $(NAME)
 
+run: all clean
+
 lint:
 	$(NORMINETTE) .
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re run
