@@ -17,6 +17,8 @@ void	*coder_routine(void *arg)
 	t_coder	*coder;
 
 	coder = (t_coder *)arg;
+	if (coder->id % 2 != 0)
+		precise_sleep(coder->table, coder->table->config->compile_time);
 	while (!is_stopped(coder->table))
 	{
 		compile(coder);

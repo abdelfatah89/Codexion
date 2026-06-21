@@ -18,6 +18,8 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror -pthread 
 RM = rm -f
 NORMINETTE = norminette
+FSTHREAD = -fsanitize=thread -g
+FSADDRESS = -g -fsanitize=address
 
 all: $(NAME)
 
@@ -31,6 +33,12 @@ fclean: clean
 	$(RM) $(NAME)
 
 run: all clean
+
+fsthread: $(OBJS)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(FSTHREAD)
+
+fsaddress: $(OBJS)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(FSADDRESS)
 
 lint:
 	$(NORMINETTE) .

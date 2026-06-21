@@ -76,7 +76,7 @@ void	compile(t_coder *coder)
 	}
 	first = coder->left;
 	second = coder->right;
-	if (coder->right->id < coder->left->id)
+	if (coder->id % 2 == 0)
 	{
 		first = coder->right;
 		second = coder->left;

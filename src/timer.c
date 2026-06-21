@@ -20,17 +20,12 @@ long	get_time_in_ms(void)
 	return (tv.tv_sec * 1000L + tv.tv_usec / 1000L);
 }
 
-struct timespec	abstime_after_ms(long ms)
+struct timespec	abstime_at_ms(long abs_ms)
 {
-	struct timeval	tv;
 	struct timespec	ts;
-	long			nsec;
 
-	gettimeofday(&tv, NULL);
-	ts.tv_sec = tv.tv_sec + ms / 1000;
-	nsec = (long)tv.tv_usec * 1000L + (ms % 1000) * 1000000L;
-	ts.tv_sec += nsec / 1000000000L;
-	ts.tv_nsec = nsec % 1000000000L;
+	ts.tv_sec = abs_ms / 1000L;
+	ts.tv_nsec = (abs_ms % 1000L) * 1000000L;
 	return (ts);
 }
 
