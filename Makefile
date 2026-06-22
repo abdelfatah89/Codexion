@@ -35,10 +35,10 @@ fclean: clean
 run: all clean
 
 fsthread: $(OBJS)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(FSTHREAD)
+	$(CC) $(CFLAGS) $(FSTHREAD) -o $(NAME) $(OBJS)
 
 fsaddress: $(OBJS)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(FSADDRESS)
+	$(CC) $(CFLAGS) $(FSADDRESS) -o $(NAME) $(OBJS)
 
 lint:
 	$(NORMINETTE) .
