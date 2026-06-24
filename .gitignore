@@ -6,3 +6,5 @@ codexion
 # Editor / OS
 *.swp
 .DS_Store
+tester.sh
+TESTER.md
