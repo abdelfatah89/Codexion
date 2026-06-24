@@ -53,8 +53,8 @@ bool	take_dongle(t_dongle *dongle, t_coder *coder)
 	struct timespec	ts;
 
 	pthread_mutex_lock(&dongle->mutex);
-	while (!is_stopped(coder->table) && !(is_next(dongle, coder))
-		&& get_time_in_ms() >= dongle->cooldown_until)
+	while (!is_stopped(coder->table) && (!(is_next(dongle, coder))
+			|| get_time_in_ms() < dongle->cooldown_until))
 	{
 		if (is_next(dongle, coder))
 		{
