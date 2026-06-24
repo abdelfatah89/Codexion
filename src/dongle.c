@@ -53,10 +53,11 @@ bool	take_dongle(t_dongle *dongle, t_coder *coder)
 	struct timespec	ts;
 
 	pthread_mutex_lock(&dongle->mutex);
-	while (!is_stopped(coder->table) && !(is_next(dongle, coder))
-		&& get_time_in_ms() >= dongle->cooldown_until)
+	while (!is_stopped(coder->table) && (!is_next(dongle, coder)
+			|| get_time_in_ms() < dongle->cooldown_until))
 	{
-		if (is_next(dongle, coder))
+		if (is_next(dongle, coder)
+			&& get_time_in_ms() < dongle->cooldown_until)
 		{
 			ts = abstime_at_ms(dongle->cooldown_until);
 			pthread_cond_timedwait(&dongle->cond, &dongle->mutex, &ts);
@@ -64,6 +65,8 @@ bool	take_dongle(t_dongle *dongle, t_coder *coder)
 		else
 			pthread_cond_wait(&dongle->cond, &dongle->mutex);
 	}
+	if (is_stopped(coder->table))
+		return (pthread_mutex_unlock(&dongle->mutex), false);
 	heap_pop(&dongle->queue);
 	dongle->taken = true;
 	dongle->owner = coder;
