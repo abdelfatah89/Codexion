@@ -34,7 +34,7 @@ t_config	*parser(char **argv)
 	if (checker(arr_int, schedular_type))
 		return (assing_values(args, arr_int, schedular_type), args);
 	else
-		return (NULL);
+		return (free(args), NULL);
 }
 
 int	is_not_digit(char *s)
@@ -80,6 +80,8 @@ int	checker(int *arr_int, char *schedular_type)
 	}
 	if (arr_int[0] < 1)
 		return (printf("Invalid number of coders\n"), 0);
+	if (arr_int[5] < 1)
+		return (0);
 	if (strcmp(schedular_type, "fifo") != 0
 		&& strcmp(schedular_type, "edf") != 0)
 		return (printf("Invalid scheduler type\n"), 0);
